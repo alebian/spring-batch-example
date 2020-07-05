@@ -1,0 +1,37 @@
+version: '3.7'
+services:
+  db:
+    image: postgres:11.5-alpine
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    networks:
+      - default
+    ports:
+      - 5454:5432
+    volumes:
+      - spring_batch_example_pg_data:/var/lib/postgresql/data
+
+  app:
+    image: spring-batch-example
+    networks:
+      - default
+    ports:
+      - 8080:8080
+    environment:
+      - JAVA_OPTS=-Dspring.config.location=/app/application.properties
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/postgres
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    volumes:
+      - ./src/main/resources/application.properties:/app/application.properties
+    depends_on:
+      - db
+
+networks:
+  default:
+volumes:
+  spring_batch_example_pg_data:
